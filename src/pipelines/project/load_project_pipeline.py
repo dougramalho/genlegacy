@@ -1,5 +1,5 @@
 from src.pipelines.base import PipelineStep
-from src.api.models import BaseTaskInput, ProcessingContext, OutputDataModel
+from src.api.models import DiscoveryTaskInput, ProcessingContext, OutputDataModel
 from pydantic import BaseModel
 from src.utils import LLMStyleConsole
 import os
@@ -33,7 +33,7 @@ class LoadProject(PipelineStep):
         self.project_path = response
 
     def process(self, 
-                input_data: BaseTaskInput, 
+                input_data: DiscoveryTaskInput, 
                 context: ProcessingContext, 
                 output_data=OutputDataModel):
         
@@ -61,7 +61,7 @@ class LoadProject(PipelineStep):
 
         return input_data, context, output_data
     
-    def resume_project(self, data: BaseTaskInput) -> ResponseProjectAnalysisModel:
+    def resume_project(self, data: DiscoveryTaskInput) -> ResponseProjectAnalysisModel:
         llm = LLMFactory("openai")
         prompt = CPlusPlusInfoPrompt()
 
@@ -83,7 +83,7 @@ class LoadProject(PipelineStep):
         data = ResponseProjectAnalysisModel(completion.content)
         return data
     
-    def route_pipeline(self, data: BaseTaskInput) -> ResponseProjectContentModel:
+    def route_pipeline(self, data: DiscoveryTaskInput) -> ResponseProjectContentModel:
 
         target_files = ['main.cpp', 'menu.cpp', 'business.cpp']
         self.content = ""

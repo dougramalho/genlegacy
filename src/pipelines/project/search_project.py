@@ -20,7 +20,7 @@ class SearchInProjectContent(PipelineStep):
         self.user_response = None
         self.knowledge_base = None
 
-    def handle_response(self, response: str):  # Método de instância com self
+    def handle_response(self, response: str):
         self.user_response = response
 
     def process(self, 
