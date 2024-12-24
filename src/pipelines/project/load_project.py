@@ -54,6 +54,8 @@ class LoadProject(PipelineStep):
         context.intermediates["project_path"] = self.project_path
         context.intermediates["project_content"] = routeCompletion.content
 
+        output_data.result["project_path"] = self.project_path
+
         completion = self.resume_project(input_data)
         context.intermediates["analysis"] = completion.analysis
 

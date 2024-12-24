@@ -17,8 +17,6 @@ def main():
             task_result = process_task(discovery_input)
     
     
-    print(task_result)
-
     return task_result
     
 
