@@ -6,6 +6,8 @@ import os
 
 load_dotenv()
 
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
 class LLMProviderSettings(BaseSettings):
     temperature: float = 0.0
     max_tokens: Optional[int] = None
