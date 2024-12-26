@@ -1,10 +1,25 @@
 {
     "configurations": [
+        // {
+        //     "name": "Python Debugger: Python File",
+        //     "type": "debugpy",
+        //     "request": "launch",
+        //     "program": "${file}"
+        // },
+        // {
+        //     "name": "Python Debugger: Python File",
+        //     "type": "debugpy",
+        //     "request": "launch",
+        //     "program": "${file}"
+        // },
         {
-            "name": "Python Debugger: Python File",
+            "name": "Python: Current File (Integrated Terminal)",
             "type": "debugpy",
             "request": "launch",
-            "program": "${file}"
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}",
+            "purpose":["debug-in-terminal"]
         }
     ]
 }

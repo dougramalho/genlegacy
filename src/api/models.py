@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field, BeforeValidator
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 from enum import Enum
 from typing_extensions import Annotated
 from instructor import llm_validator
@@ -58,3 +58,55 @@ class Reply(BaseModel):
     confidence: float = Field(
         ge=0, le=1, description="Confidence in the category prediction."
     )
+
+
+class BusinessRuleAnalysis(BaseModel):
+    rule_id: str = Field(description="ID da regra analisada")
+    is_business_rule: bool = Field(
+        description="Indica se é realmente uma regra de negócio")
+    description: str = Field(
+        description="Descrição em linguagem natural do que a regra faz")
+    dependencies: List[str] = Field(
+        default_factory=list,
+        description="IDs de outras regras que esta regra depende ou se relaciona")
+    rule_type: str = Field(
+        description="Tipo da regra: 'validation', 'calculation', 'process', ou 'business_logic'")
+    domain_objects: List[str] = Field(
+        default_factory=list,
+        description="Nomes dos objetos de domínio afetados pela regra")
+    business_impact: str = Field(
+        description="Descrição do impacto de negócio desta regra")
+    confidence_score: float = Field(
+        ge=0, 
+        le=1,
+        description="Nível de confiança na classificação da regra (0.0 a 1.0)")
+
+class BusinessRulesAnalysis(BaseModel):
+    """Lista de análises das regras de negócio encontradas no código."""
+    analyses: List[BusinessRuleAnalysis] = Field(
+        description="Lista de análises de regras de negócio")
+    
+# class EnrichedBusinessRule(BaseModel):
+#     is_business_rule: bool = Field(
+#         description="Indica se é realmente uma regra de negócio")
+#     description: str = Field(
+#         description="Descrição em linguagem natural do que a regra faz")
+#     dependencies: List[str] = Field(
+#         default_factory=list,
+#         description="IDs de outras regras que esta regra depende ou se relaciona")
+#     rule_type: str = Field(
+#         description="Tipo da regra: 'validation', 'calculation', 'process', ou 'business_logic'")
+#     domain_objects: List[str] = Field(
+#         default_factory=list,
+#         description="Nomes dos objetos de domínio afetados pela regra")
+#     business_impact: str = Field(
+#         description="Descrição do impacto de negócio desta regra")
+#     confidence_score: float = Field(
+#         ge=0, 
+#         le=1,
+#         description="Nível de confiança na classificação da regra (0.0 a 1.0)")
+
+# class BusinessRulesAnalysis(BaseModel):
+#     """Análise das regras de negócio encontradas no código."""
+#     rules: Dict[str, EnrichedBusinessRule] = Field(
+#         description="Dicionário onde a chave é o ID da regra e o valor é a análise detalhada da regra")

@@ -1,36 +1,30 @@
+# src/pipelines/steps/prepare_vector_store.py
 from src.pipelines.base import PipelineStep
 from src.api.models import BaseTaskInput, ProcessingContext, OutputDataModel
-from src.services.project_loader.registry import ProjectLoaderRegistry
-import json
+from src.repositories.vector_store.store import VectorStore
 from pathlib import Path
+import json
 
-class LoadProjectV2(PipelineStep):
+class PrepareVectorStore(PipelineStep):
     def __init__(self):
-        self.loader_registry = ProjectLoaderRegistry()
-
+        self.vector_store = VectorStore()
+    
     def process(self, 
                 input_data: BaseTaskInput, 
                 context: ProcessingContext, 
                 output_data=OutputDataModel):
         
-        project_path = context.intermediates["project_path"]
-        language = context.intermediates["language"]
+        rules = context.intermediates.get("enriched_business_rules", [])
         
-        # Obtém o loader apropriado
-        loader = self.loader_registry.get_loader(language)
+        # Prepara embeddings e armazena
+        self.vector_store.store_rules(rules)
         
-        # Carrega o projeto
-        project_info = loader.load(project_path)
-        
-        # Atualiza o contexto com as informações do projeto
-        context.intermediates["project_info"] = project_info
-        context.intermediates["components"] = project_info['components']
-        context.intermediates["build_system"] = project_info['build_system']
+        # Adiciona referência da vector store ao contexto
+        context.intermediates["vector_store"] = self.vector_store
 
-        # json_safe_info = self._prepare_for_json(project_info)
-
-        # with open("data.json", "w") as arquivo:
-        #     json.dump(json_safe_info, arquivo)
+        json_safe_info = self._prepare_for_json(rules)
+        with open("data.json", "w") as arquivo:
+            json.dump(json_safe_info, arquivo)
         
         return input_data, context, output_data
     

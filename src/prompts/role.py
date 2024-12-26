@@ -1,4 +1,201 @@
 from src.prompts.template import PromptTemplate
+
+
+class BusinessRuleEnrichmentPrompt(PromptTemplate):
+    _prompt = """
+    Analise a seguinte regra de negócio encontrada no código e forneça uma análise detalhada.
+
+    REGRA A SER ANALISADA:
+    {rules}
+
+    Sua resposta DEVE ser um JSON válido seguindo EXATAMENTE este formato:
+    {{
+        "analyses": [
+            {{
+                "rule_id": "ID_DA_REGRA",
+                "is_business_rule": true,
+                "description": "string descrevendo o que a regra faz",
+                "dependencies": ["id_1", "id_2"],
+                "rule_type": "validation",
+                "domain_objects": ["objeto1", "objeto2"],
+                "business_impact": "string descrevendo o impacto",
+                "confidence_score": 0.95
+            }}
+        ]
+    }}
+
+    EXEMPLO de resposta esperada:
+    {{
+        "analyses": [
+            {{
+                "rule_id": "validateDocument_validation",
+                "is_business_rule": true,
+                "description": "Valida se um número de documento tem 14 dígitos",
+                "dependencies": ["setLastError"],
+                "rule_type": "validation",
+                "domain_objects": ["document"],
+                "business_impact": "Garante que apenas documentos válidos sejam aceitos",
+                "confidence_score": 0.95
+            }}
+        ]
+    }}
+
+    IMPORTANTE:
+    - SUA RESPOSTA DEVE SER APENAS O JSON, nada mais
+    - O campo "analyses" é obrigatório e deve ser uma lista
+    - Use o ID exato da regra no campo rule_id
+    - Todos os campos são obrigatórios
+    - confidence_score deve ser um número entre 0 e 1
+    - rule_type deve ser: "validation", "calculation", "process" ou "business_logic"
+    """
+
+    def __init__(self, rules):
+        rules_text = self._format_rules(rules)
+        super().__init__(
+            template=self._prompt,
+            input_variables=["rules"],
+            default_values={"rules": rules_text}
+        )
+
+    def _format_rules(self, rules):
+        formatted_rules = []
+        for rule in rules:
+            formatted_rules.append(f"""
+            ID da Regra: {rule['id']}
+            Nome da Função: {rule['function_name']}
+            Tipo Atual: {rule['type']}
+            
+            Código da Função:
+            {rule['content']}
+            """)
+        return "\n".join(formatted_rules)
+
+# class BusinessRuleEnrichmentPrompt(PromptTemplate):
+#     _prompt = """
+#     Analise a seguinte regra de negócio encontrada no código e forneça uma descrição.
+
+#     REGRA A SER ANALISADA:
+#     {rules}
+
+#     Sua resposta deve ser um JSON no formato:
+#     {{
+#         "rules": {{
+#             "RULE_ID": {{
+#                 "description": "descreva o que a regra faz"
+#             }}
+#         }}
+#     }}
+#     """
+
+#     def __init__(self, rules):
+#         rules_text = self._format_rules(rules)
+#         super().__init__(
+#             template=self._prompt,
+#             input_variables=["rules"],
+#             default_values={"rules": rules_text}
+#         )
+
+#     def _format_rules(self, rules):
+#         formatted_rules = []
+#         for rule in rules:
+#             formatted_rules.append(f"""
+#             ID: {rule['id']}
+#             Código:
+#             {rule['content']}
+#             """)
+#         return "\n".join(formatted_rules)
+    
+# class BusinessRuleEnrichmentPrompt(PromptTemplate):
+#     _prompt = """
+#     Analise a seguinte regra de negócio encontrada no código e forneça uma análise detalhada no formato JSON especificado.
+
+#     REGRA A SER ANALISADA:
+#     {rules}
+
+#     Sua resposta DEVE ser um JSON válido seguindo EXATAMENTE este formato:
+#     {{
+#         "rules": {{
+#             "RULE_ID": {{
+#                 "is_business_rule": true,
+#                 "description": "string descrevendo o que a regra faz",
+#                 "dependencies": ["id_1", "id_2"],
+#                 "rule_type": "validation",
+#                 "domain_objects": ["objeto1", "objeto2"],
+#                 "business_impact": "string descrevendo o impacto",
+#                 "confidence_score": 0.95
+#             }}
+#         }}
+#     }}
+
+#     EXEMPLO de resposta esperada:
+#     {{
+#         "rules": {{
+#             "validateDocument_validation": {{
+#                 "is_business_rule": true,
+#                 "description": "Valida se um número de documento tem 14 dígitos",
+#                 "dependencies": ["setLastError"],
+#                 "rule_type": "validation",
+#                 "domain_objects": ["document"],
+#                 "business_impact": "Garante que apenas documentos válidos sejam aceitos",
+#                 "confidence_score": 0.95
+#             }}
+#         }}
+#     }}
+
+#     IMPORTANTE:
+#     - SUA RESPOSTA DEVE SER APENAS O JSON, nada mais
+#     - O campo "rules" é obrigatório e deve ser um objeto
+#     - Use o ID exato da regra como chave
+#     - Todos os campos são obrigatórios
+#     - confidence_score deve ser um número entre 0 e 1
+#     - rule_type deve ser: "validation", "calculation", "process" ou "business_logic"
+#     """
+
+#     def __init__(self, rules):
+#         rules_text = self._format_rules(rules)
+#         default_values = {"rules": rules_text}
+
+#         super().__init__(
+#             template=self._prompt,
+#             input_variables=["rules"],
+#             default_values=default_values
+#         )
+
+#     def _format_rules(self, rules):
+#         formatted_rules = []
+#         for rule in rules:
+#             formatted_rules.append(f"""
+#             ID da Regra: {rule['id']}
+#             Nome da Função: {rule['function_name']}
+#             Tipo Atual: {rule['type']}
+            
+#             Código da Função:
+#             {rule['content']}
+#             """)
+#         return "\n".join(formatted_rules)
+
+class DomainRefinementPrompt(PromptTemplate):
+    _prompt = """
+        Analise os seguintes objetos de domínio e seus atributos encontrados no código:
+        
+        {domains}
+        
+        Por favor:
+        1. Identifique quais são realmente objetos de domínio do negócio
+        2. Sugira atributos adicionais comuns para cada domínio
+        3. Identifique relacionamentos entre os domínios
+        4. Remova falsos positivos
+        """
+
+    def __init__(self, domains):
+        default_values = {"domains": domains}
+
+        super().__init__(
+            template=self._prompt,
+            input_variables=["domains"],
+            default_values=default_values
+        )
+
 class BusinessAnalystPrompt(PromptTemplate):
     _prompt = """
     Você é um analista de negócios experiente em projetos de desenvolvimento de software, apoiando o entendimento de projetos e levantamento de requisitos funcionais para diferentes negócios.
