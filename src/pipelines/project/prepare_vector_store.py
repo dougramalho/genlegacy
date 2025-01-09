@@ -22,10 +22,17 @@ class PrepareVectorStore(PipelineStep):
         # Adiciona referência da vector store ao contexto
         context.intermediates["vector_store"] = self.vector_store
 
-        json_safe_info = self._prepare_for_json(rules)
-        with open("data.json", "w") as arquivo:
-            json.dump(json_safe_info, arquivo)
-        
+        # json_safe_info = self._prepare_for_json(rules)
+        # with open("data.json", "w") as arquivo:
+        #     json.dump(json_safe_info, arquivo)
+        # Diagnóstico após armazenamento
+        stats = self.vector_store.get_collection_stats()
+        print("\nVector Store Stats:")
+        print(f"Total records: {stats['total_records']}")
+        if stats.get('sample'):
+            print("\nSample record:")
+            print(json.dumps(stats['sample'], indent=2))
+            
         return input_data, context, output_data
     
     def _prepare_for_json(self, data):

@@ -60,7 +60,7 @@ class QueryProcessor:
         
         return " ".join(components)
 
-    def search_relevant_rules(self, query_info: Dict[str, Any], limit: int = 5) -> List[Dict[str, Any]]:
+    def search_relevant_rules(self, query_info: Dict[str, Any], limit: int = 1000) -> List[Dict[str, Any]]:
         """
         Busca regras relevantes usando a query expandida
         """

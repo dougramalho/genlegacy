@@ -115,3 +115,46 @@ class VectorStore:
             })
         
         return processed_results
+    
+    def get_collection_stats(self) -> dict:
+        """
+        Retorna estatísticas sobre a collection
+        """
+        try:
+            collection = self.collection
+            count = collection.count()
+            
+            # Pega uma amostra de registros se existirem
+            sample = None
+            if count > 0:
+                sample = collection.get(limit=1)
+            
+            return {
+                "collection_name": "business_rules",
+                "total_records": count,
+                "sample": sample
+            }
+        except Exception as e:
+            return {
+                "error": f"Error getting collection stats: {str(e)}"
+            }
+
+    def list_all_rules(self, limit: int = 10) -> list:
+        """
+        Lista todas as regras armazenadas
+        """
+        try:
+            collection = self.collection
+            results = collection.get(
+                include=["metadatas", "documents", "embeddings"],
+                limit=limit
+            )
+            
+            return {
+                "total": collection.count(),
+                "results": results
+            }
+        except Exception as e:
+            return {
+                "error": f"Error listing rules: {str(e)}"
+            }
