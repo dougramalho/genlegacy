@@ -50,6 +50,7 @@ class CategorizeSubject(PipelineStep):
 
         output_data.result["category"] = completion.category
         output_data.metadata["categorization_source"] = "llm"
+        output_data.result["message"] = context.intermediates["message"]
 
         return input_data, context, output_data
     

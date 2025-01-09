@@ -1,12 +1,14 @@
 from src.pipelines.project.project_discovery_pipeline import ProjectDiscoveryPipeline
 from src.pipelines.orchestration.manager_classifier_pipeline import InitializeSessionPipeline
-from src.api.models import WelcomeTaskInput, DiscoveryTaskInput, BaseTaskInput
+from src.api.models import WelcomeTaskInput, DiscoveryTaskInput, BaseTaskInput, QueryTaskInput
+from src.pipelines.query.pipeline import QueryPipeline
 
 class PipelineRegistry:
 
     _pipeline_mapping = {
         WelcomeTaskInput: InitializeSessionPipeline,
-        DiscoveryTaskInput: ProjectDiscoveryPipeline
+        DiscoveryTaskInput: ProjectDiscoveryPipeline,
+        QueryTaskInput: QueryPipeline
     }
 
     @classmethod  # Mudando para @classmethod

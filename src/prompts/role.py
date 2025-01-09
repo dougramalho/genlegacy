@@ -1,6 +1,114 @@
 from src.prompts.template import PromptTemplate
 
 
+class ResponseGenerationPrompt(PromptTemplate):
+    _prompt = """
+    Gere uma resposta clara e estruturada para uma pergunta sobre regras de negócio, baseada nas regras encontradas no código.
+
+    PERGUNTA ORIGINAL:
+    {original_query}
+
+    PERGUNTA EXPANDIDA:
+    {expanded_query}
+
+    REGRAS RELEVANTES ENCONTRADAS:
+    {relevant_rules}
+
+    FOCO DO DOMÍNIO:
+    {domain_focus}
+
+    Forneça uma resposta no seguinte formato:
+    {{
+        "answer": "Sua resposta detalhada aqui, explicando as regras encontradas e como elas se relacionam",
+        "referenced_rules": ["id_regra1", "id_regra2"],
+        "suggested_followup": [
+            "pergunta sugerida 1?",
+            "pergunta sugerida 2?"
+        ]
+    }}
+
+    DIRETRIZES:
+    1. Explique as regras de forma clara e concisa
+    2. Conecte regras relacionadas quando relevante
+    3. Cite exemplos do código quando útil
+    4. Mencione impactos no negócio
+    5. Indique dependências importantes
+    """
+
+    def __init__(self, query_info: dict, relevant_rules: list):
+        rules_text = self._format_rules(relevant_rules)
+        domain_focus = ", ".join(query_info["domain_focus"])
+        
+        default_values = {
+            "original_query": query_info["original_query"],
+            "expanded_query": query_info["expanded_query"],
+            "relevant_rules": rules_text,
+            "domain_focus": domain_focus
+        }
+
+        super().__init__(
+            template=self._prompt,
+            input_variables=["original_query", "expanded_query", "relevant_rules", "domain_focus"],
+            default_values=default_values
+        )
+
+    def _format_rules(self, rules: list) -> str:
+        formatted_rules = []
+        for rule in rules:
+            formatted_rules.append(f"""
+            ID: {rule['metadata']['rule_id']}
+            Tipo: {rule['metadata']['type']}
+            Descrição: {rule['metadata']['description']}
+            Impacto: {rule['metadata']['business_impact']}
+            Código:
+            {rule['content']}
+            """)
+        return "\n\n".join(formatted_rules)
+
+class QueryExpansionPrompt(PromptTemplate):
+    _prompt = """
+    Analise a seguinte pergunta sobre regras de negócio em um código e expanda-a para melhorar a busca.
+
+    PERGUNTA ORIGINAL:
+    {query}
+
+    CONTEXTO DE DESENVOLVIMENTO:
+    Você está analisando código-fonte que contém regras de negócio implementadas.
+    Sua tarefa é expandir a pergunta para capturar melhor a intenção e incluir termos relacionados.
+
+    Forneça uma resposta no seguinte formato:
+    {{
+        "expanded_query": "versão expandida da pergunta",
+        "search_terms": ["termo1", "termo2", "termo3"],
+        "domain_focus": ["objeto_dominio1", "objeto_dominio2"]
+    }}
+
+    EXEMPLOS:
+
+    Pergunta: "Como é calculado o prêmio?"
+    Resposta:
+    {{
+        "expanded_query": "Quais são as regras e fórmulas usadas para calcular o valor do prêmio do seguro",
+        "search_terms": ["calculate", "premium", "computation", "formula", "value"],
+        "domain_focus": ["premium", "contract", "coverage"]
+    }}
+
+    Pergunta: "Quais são as regras do tomador?"
+    Resposta:
+    {{
+        "expanded_query": "Quais são todas as regras de negócio e validações relacionadas ao tomador do seguro",
+        "search_terms": ["validate", "check", "verify", "policyholder", "rules"],
+        "domain_focus": ["policyholder", "document", "contract"]
+    }}
+    """
+
+    def __init__(self, query: str):
+        super().__init__(
+            template=self._prompt,
+            input_variables=["query"],
+            default_values={"query": query}
+        )
+
 class BusinessRuleEnrichmentPrompt(PromptTemplate):
     _prompt = """
     Analise a seguinte regra de negócio encontrada no código e forneça uma análise detalhada.

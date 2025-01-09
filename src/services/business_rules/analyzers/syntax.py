@@ -2,7 +2,7 @@ from .base import BaseAnalyzer
 
 class BusinessRuleSyntaxAnalyzer(BaseAnalyzer):
     def __init__(self):
-        self.rule_prefixes = ['validate', 'check', 'calculate', 'process', 'verify']
+        self.rule_prefixes = ['validate', 'check', 'calculate', 'process', 'verify', 'validar', 'calcular']
         self.rule_suffixes = ['Rule', 'Policy', 'Validation']
 
     def analyze(self, component):

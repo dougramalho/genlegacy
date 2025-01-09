@@ -7,6 +7,7 @@ from src.services.llm_factory import LLMFactory
 from src.prompts.role import CPlusPlusInfoPrompt
 from src.api.models import ProjectAnalysis
 
+
 class LoadFilesV2(PipelineStep):
 
     def __init__(self):

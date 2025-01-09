@@ -26,6 +26,10 @@ class DiscoveryTaskInput(BaseTaskInput):
     topic: ProcessCategory
     project_details: Optional[Dict[str, Any]] = None
 
+class QueryTaskInput(BaseTaskInput):
+    command_name: str = "query"
+    query: str
+
 # Other Models
 class ProcessingContext(BaseModel):
     parameters: Dict[str, Any] = Field(default_factory=dict)

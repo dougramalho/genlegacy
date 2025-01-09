@@ -18,7 +18,7 @@ class VectorStore:
         )
         
         # Cria ou obtém a collection
-        self.collection = self.client.create_collection(
+        self.collection = self.client.get_or_create_collection(
             name="business_rules",
             embedding_function=self.embedding_function,
             metadata={"description": "Business rules extracted from code"}
